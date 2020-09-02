@@ -100,12 +100,15 @@ private:
     ros::Subscriber robStatus_subscriber;
     ros::Subscriber peopleDetectImg_subscriber;
     ros::Subscriber forceSensor_subscriber;
+    ros::Subscriber personImg_subcriber;
 
 public:
     //初始化Ros话题与服务
     void initRosToptic();
     //输入想要监控的节点名称列表 输出监控状态列表
     void checkNodeAlive(const std::vector<std::string>& in_nodeNameList, std::vector<bool >& out_nodeIsAlive);
+
+    QImage cvMat2QImage(const cv::Mat &mat) ;
 private:
     //系统变量初始化
     void SysVarInit();
