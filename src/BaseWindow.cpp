@@ -34,10 +34,10 @@ void BaseWindow::initQtVal() {
     logPath= QDir::currentPath()+QString("/src/handrb_ui/photo/logo.png");
 
     //图片内容初始化
-    QPixmap tmp_pixmap_red=QPixmap(photoPath+"/icon/notok.png");
-    QPixmap tmp_pixmap_green=QPixmap(photoPath+"/icon/ok.png");
-    fitpixmap_redLight = tmp_pixmap_red.scaled(LABLE_STATUS_W,LABLE_STATUS_H, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);  // 饱满填充
-    fitpixmap_greenLight = tmp_pixmap_green.scaled(LABLE_STATUS_W,LABLE_STATUS_H, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);  // 饱满填充
+//    QPixmap tmp_pixmap_red=QPixmap(photoPath+"/icon/notok.png");
+//    QPixmap tmp_pixmap_green=QPixmap(photoPath+"/icon/ok.png");
+//    fitpixmap_redLight = tmp_pixmap_red.scaled(LABLE_STATUS_W,LABLE_STATUS_H, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);  // 饱满填充
+//    fitpixmap_greenLight = tmp_pixmap_green.scaled(LABLE_STATUS_W,LABLE_STATUS_H, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);  // 饱满填充
 }
 
 
@@ -116,86 +116,86 @@ void BaseWindow::initUi(QMainWindow *MainWindow) {
     horizontalLayout_5->setSpacing(6);
     horizontalLayout_5->setContentsMargins(11, 11, 11, 11);
     horizontalLayout_5->setObjectName(QString::fromUtf8("horizontalLayout_5"));
-    gLayout_tabmain_tatus = new QGridLayout();
-    gLayout_tabmain_tatus->setSpacing(6);
-    gLayout_tabmain_tatus->setObjectName(QString::fromUtf8("gLayout_tabmain_tatus"));
-    lable_tabmain_handGraw_conn = new QLabel(gBox_tabmain_status);
-    lable_tabmain_handGraw_conn->setObjectName(QString::fromUtf8("lable_tabmain_handGraw_conn"));
-    lable_tabmain_handGraw_conn->setMaximumSize(QSize(150, 50));
-    lable_tabmain_handGraw_conn->setLayoutDirection(Qt::RightToLeft);
-    lable_tabmain_handGraw_conn->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+    gLayout_tabmain_status = new QGridLayout();
+    gLayout_tabmain_status->setSpacing(6);
+    gLayout_tabmain_status->setObjectName(QString::fromUtf8("gLayout_tabmain_status"));
+    label_tabmain_motionBridge = new QLabel(gBox_tabmain_status);
+    label_tabmain_motionBridge->setObjectName(QString::fromUtf8("label_tabmain_motionBridge"));
 
-    gLayout_tabmain_tatus->addWidget(lable_tabmain_handGraw_conn, 0, 9, 1, 1);
+    gLayout_tabmain_status->addWidget(label_tabmain_motionBridge, 3, 3, 1, 1);
 
-    label_tabmain_forceconn = new QLabel(gBox_tabmain_status);
-    label_tabmain_forceconn->setObjectName(QString::fromUtf8("label_tabmain_forceconn"));
-    label_tabmain_forceconn->setMaximumSize(QSize(150, 50));
-    label_tabmain_forceconn->setLayoutDirection(Qt::RightToLeft);
-    label_tabmain_forceconn->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+    label_tabmain_perceptionBridge = new QLabel(gBox_tabmain_status);
+    label_tabmain_perceptionBridge->setObjectName(QString::fromUtf8("label_tabmain_perceptionBridge"));
 
-    gLayout_tabmain_tatus->addWidget(label_tabmain_forceconn, 0, 3, 1, 1);
+    gLayout_tabmain_status->addWidget(label_tabmain_perceptionBridge, 3, 4, 1, 1);
 
     label_tabmain_rbConn = new QLabel(gBox_tabmain_status);
     label_tabmain_rbConn->setObjectName(QString::fromUtf8("label_tabmain_rbConn"));
-    label_tabmain_rbConn->setMaximumSize(QSize(150, 50));
-    label_tabmain_rbConn->setLayoutDirection(Qt::RightToLeft);
-    label_tabmain_rbConn->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-    gLayout_tabmain_tatus->addWidget(label_tabmain_rbConn, 0, 1, 1, 1);
+    gLayout_tabmain_status->addWidget(label_tabmain_rbConn, 0, 0, 1, 1);
 
-    label_tabmain_force_pic = new QLabel(gBox_tabmain_status);
-    label_tabmain_force_pic->setObjectName(QString::fromUtf8("label_tabmain_force_pic"));
-    label_tabmain_force_pic->setMaximumSize(QSize(150, 50));
-    label_tabmain_force_pic->setPixmap(fitpixmap_redLight);
+    label_tabmain_rbIsWell = new QLabel(gBox_tabmain_status);
+    label_tabmain_rbIsWell->setObjectName(QString::fromUtf8("label_tabmain_rbIsWell"));
 
-    gLayout_tabmain_tatus->addWidget(label_tabmain_force_pic, 0, 4, 1, 1);
+    gLayout_tabmain_status->addWidget(label_tabmain_rbIsWell, 0, 1, 1, 1);
+
+    label_tabmain_rbEnable = new QLabel(gBox_tabmain_status);
+    label_tabmain_rbEnable->setObjectName(QString::fromUtf8("label_tabmain_rbEnable"));
+
+    gLayout_tabmain_status->addWidget(label_tabmain_rbEnable, 0, 2, 1, 1);
+
+    label_tabmain_plannerBridge = new QLabel(gBox_tabmain_status);
+    label_tabmain_plannerBridge->setObjectName(QString::fromUtf8("label_tabmain_plannerBridge"));
+
+    gLayout_tabmain_status->addWidget(label_tabmain_plannerBridge, 3, 2, 1, 1);
+
+    label_tabmain_dmBridge = new QLabel(gBox_tabmain_status);
+    label_tabmain_dmBridge->setObjectName(QString::fromUtf8("label_tabmain_dmBridge"));
+
+    gLayout_tabmain_status->addWidget(label_tabmain_dmBridge, 3, 1, 1, 1);
+
+    label_tabmain_versionBridge = new QLabel(gBox_tabmain_status);
+    label_tabmain_versionBridge->setObjectName(QString::fromUtf8("label_tabmain_versionBridge"));
+
+    gLayout_tabmain_status->addWidget(label_tabmain_versionBridge, 0, 3, 1, 1);
+
+    label_tabmain_forceSensor = new QLabel(gBox_tabmain_status);
+    label_tabmain_forceSensor->setObjectName(QString::fromUtf8("label_tabmain_forceSensor"));
+
+    gLayout_tabmain_status->addWidget(label_tabmain_forceSensor, 0, 4, 1, 1);
 
     label_tabmain_d435iConn = new QLabel(gBox_tabmain_status);
     label_tabmain_d435iConn->setObjectName(QString::fromUtf8("label_tabmain_d435iConn"));
-    label_tabmain_d435iConn->setMaximumSize(QSize(150, 50));
-    label_tabmain_d435iConn->setLayoutDirection(Qt::RightToLeft);
-    label_tabmain_d435iConn->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-    gLayout_tabmain_tatus->addWidget(label_tabmain_d435iConn, 0, 7, 1, 1);
+    gLayout_tabmain_status->addWidget(label_tabmain_d435iConn, 1, 0, 1, 1);
 
-    label_tabmain_d435i_pic = new QLabel(gBox_tabmain_status);
-    label_tabmain_d435i_pic->setObjectName(QString::fromUtf8("label_tabmain_d435i_pic"));
-    label_tabmain_d435i_pic->setMaximumSize(QSize(150, 50));
-    label_tabmain_d435i_pic->setPixmap(fitpixmap_redLight);
+    label_tabmain_kinect2Conn = new QLabel(gBox_tabmain_status);
+    label_tabmain_kinect2Conn->setObjectName(QString::fromUtf8("label_tabmain_kinect2Conn"));
 
-    gLayout_tabmain_tatus->addWidget(label_tabmain_d435i_pic, 0, 8, 1, 1);
+    gLayout_tabmain_status->addWidget(label_tabmain_kinect2Conn, 1, 1, 1, 1);
 
-    label_tabmain_rb_pic = new QLabel(gBox_tabmain_status);
-    label_tabmain_rb_pic->setObjectName(QString::fromUtf8("label_tabmain_rb_pic"));
-    label_tabmain_rb_pic->setMaximumSize(QSize(150, 50));
-    label_tabmain_rb_pic->setPixmap(fitpixmap_redLight);
-    label_tabmain_rb_pic->setScaledContents(false);
+    label_tabmain_shakehandJudge = new QLabel(gBox_tabmain_status);
+    label_tabmain_shakehandJudge->setObjectName(QString::fromUtf8("label_tabmain_shakehandJudge"));
 
-    gLayout_tabmain_tatus->addWidget(label_tabmain_rb_pic, 0, 2, 1, 1);
+    gLayout_tabmain_status->addWidget(label_tabmain_shakehandJudge, 3, 0, 1, 1);
 
-    label_tabmain_kinect_pic = new QLabel(gBox_tabmain_status);
-    label_tabmain_kinect_pic->setObjectName(QString::fromUtf8("label_tabmain_kinect_pic"));
-    label_tabmain_kinect_pic->setMaximumSize(QSize(150, 50));
-    label_tabmain_kinect_pic->setPixmap(fitpixmap_redLight);
+    label_tabmain_forcebridge = new QLabel(gBox_tabmain_status);
+    label_tabmain_forcebridge->setObjectName(QString::fromUtf8("label_tabmain_forcebridge"));
 
-    gLayout_tabmain_tatus->addWidget(label_tabmain_kinect_pic, 0, 6, 1, 1);
+    gLayout_tabmain_status->addWidget(label_tabmain_forcebridge, 1, 2, 1, 1);
 
-    label_tabmain_kinectconn = new QLabel(gBox_tabmain_status);
-    label_tabmain_kinectconn->setObjectName(QString::fromUtf8("label_tabmain_kinectconn"));
-    label_tabmain_kinectconn->setMaximumSize(QSize(150, 50));
-    label_tabmain_kinectconn->setLayoutDirection(Qt::RightToLeft);
-    label_tabmain_kinectconn->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+    label_tabmain_pickPlaceBridge = new QLabel(gBox_tabmain_status);
+    label_tabmain_pickPlaceBridge->setObjectName(QString::fromUtf8("label_tabmain_pickPlaceBridge"));
 
-    gLayout_tabmain_tatus->addWidget(label_tabmain_kinectconn, 0, 5, 1, 1);
+    gLayout_tabmain_status->addWidget(label_tabmain_pickPlaceBridge, 1, 3, 1, 1);
 
-    lable_tabmain_handGraw_pic = new QLabel(gBox_tabmain_status);
-    lable_tabmain_handGraw_pic->setObjectName(QString::fromUtf8("lable_tabmain_handGraw_pic"));
-    lable_tabmain_handGraw_pic->setPixmap(fitpixmap_redLight);
+    label_tabmain_fsmBridge = new QLabel(gBox_tabmain_status);
+    label_tabmain_fsmBridge->setObjectName(QString::fromUtf8("label_tabmain_fsmBridge"));
 
-    gLayout_tabmain_tatus->addWidget(lable_tabmain_handGraw_pic, 0, 10, 1, 1);
+    gLayout_tabmain_status->addWidget(label_tabmain_fsmBridge, 1, 4, 1, 1);
 
 
-    horizontalLayout_5->addLayout(gLayout_tabmain_tatus);
+    horizontalLayout_5->addLayout(gLayout_tabmain_status);
 
 
     hLayout_tabmain_11->addWidget(gBox_tabmain_status);
@@ -311,81 +311,6 @@ void BaseWindow::initUi(QMainWindow *MainWindow) {
     vLayout_tabvoiceSH_12 = new QVBoxLayout();
     vLayout_tabvoiceSH_12->setSpacing(6);
     vLayout_tabvoiceSH_12->setObjectName(QString::fromUtf8("vLayout_tabvoiceSH_12"));
-    gBox_tabvoiceSH_status = new QGroupBox(tab_voiceshakehand);
-    gBox_tabvoiceSH_status->setObjectName(QString::fromUtf8("gBox_tabvoiceSH_status"));
-    gBox_tabvoiceSH_status->setAutoFillBackground(false);
-    gBox_tabvoiceSH_status->setStyleSheet(groupBox_qss);
-    horizontalLayout_16 = new QHBoxLayout(gBox_tabvoiceSH_status);
-    horizontalLayout_16->setSpacing(6);
-    horizontalLayout_16->setContentsMargins(11, 11, 11, 11);
-    horizontalLayout_16->setObjectName(QString::fromUtf8("horizontalLayout_16"));
-    gridLayout_tabvoiceSH_status = new QGridLayout();
-    gridLayout_tabvoiceSH_status->setSpacing(6);
-    gridLayout_tabvoiceSH_status->setObjectName(QString::fromUtf8("gridLayout_tabvoiceSH_status"));
-    label_tabvoiceSH_rbok = new QLabel(gBox_tabvoiceSH_status);
-    label_tabvoiceSH_rbok->setObjectName(QString::fromUtf8("label_tabvoiceSH_rbok"));
-    label_tabvoiceSH_rbok->setAlignment(Qt::AlignHCenter|Qt::AlignCenter);
-    gridLayout_tabvoiceSH_status->addWidget(label_tabvoiceSH_rbok, 0, 0, 1, 1);
-
-    label_rbservook = new QLabel(gBox_tabvoiceSH_status);
-    label_rbservook->setObjectName(QString::fromUtf8("label_rbservook"));
-    label_rbservook->setAlignment(Qt::AlignHCenter|Qt::AlignCenter);
-
-    gridLayout_tabvoiceSH_status->addWidget(label_rbservook, 0, 1, 1, 1);
-
-    label_fsmbridge = new QLabel(gBox_tabvoiceSH_status);
-    label_fsmbridge->setObjectName(QString::fromUtf8("label_fsmbridge"));
-    label_fsmbridge->setAlignment(Qt::AlignHCenter|Qt::AlignCenter);
-
-    gridLayout_tabvoiceSH_status->addWidget(label_fsmbridge, 0, 2, 1, 1);
-
-    label_voiceok = new QLabel(gBox_tabvoiceSH_status);
-    label_voiceok->setObjectName(QString::fromUtf8("label_voiceok"));
-    label_voiceok->setAlignment(Qt::AlignHCenter|Qt::AlignCenter);
-
-    gridLayout_tabvoiceSH_status->addWidget(label_voiceok, 0, 3, 1, 1);
-
-    label_dmbridgeok = new QLabel(gBox_tabvoiceSH_status);
-    label_dmbridgeok->setObjectName(QString::fromUtf8("label_dmbridgeok"));
-    label_dmbridgeok->setAlignment(Qt::AlignHCenter|Qt::AlignCenter);
-
-    gridLayout_tabvoiceSH_status->addWidget(label_dmbridgeok, 1, 0, 1, 1);
-
-    label_plannerok = new QLabel(gBox_tabvoiceSH_status);
-    label_plannerok->setObjectName(QString::fromUtf8("label_plannerok"));
-    label_plannerok->setAlignment(Qt::AlignHCenter|Qt::AlignCenter);
-
-    gridLayout_tabvoiceSH_status->addWidget(label_plannerok, 1, 1, 1, 1);
-
-    label_motionbridgeok = new QLabel(gBox_tabvoiceSH_status);
-    label_motionbridgeok->setObjectName(QString::fromUtf8("label_motionbridgeok"));
-    label_motionbridgeok->setAlignment(Qt::AlignHCenter|Qt::AlignCenter);
-
-    gridLayout_tabvoiceSH_status->addWidget(label_motionbridgeok, 1, 2, 1, 1);
-
-    label_forceok = new QLabel(gBox_tabvoiceSH_status);
-    label_forceok->setObjectName(QString::fromUtf8("label_forceok"));
-    label_forceok->setAlignment(Qt::AlignHCenter|Qt::AlignCenter);
-
-    gridLayout_tabvoiceSH_status->addWidget(label_forceok, 1, 3, 1, 1);
-
-    label_forcebridge = new QLabel(gBox_tabvoiceSH_status);
-    label_forcebridge->setText("力控桥");
-    label_forcebridge->setObjectName(QString::fromUtf8("label_forcebridge"));
-
-    gridLayout_tabvoiceSH_status->addWidget(label_forcebridge, 0, 4, 1, 1);
-
-    label_shakehandJudge = new QLabel(gBox_tabvoiceSH_status);
-    label_shakehandJudge->setText("握手计算");
-    label_shakehandJudge->setObjectName(QString::fromUtf8("label_shakehandJudge"));
-
-    gridLayout_tabvoiceSH_status->addWidget(label_shakehandJudge, 1, 4, 1, 1);
-
-
-    horizontalLayout_16->addLayout(gridLayout_tabvoiceSH_status);
-
-
-    vLayout_tabvoiceSH_12->addWidget(gBox_tabvoiceSH_status);
 
     gBox_tabvoiceSH_fsm = new QGroupBox(tab_voiceshakehand);
     gBox_tabvoiceSH_fsm->setObjectName(QString::fromUtf8("gBox_tabvoiceSH_fsm"));
@@ -439,11 +364,11 @@ void BaseWindow::initUi(QMainWindow *MainWindow) {
 
     gridLayout_tabvoiceSH_fsm->addWidget(label_tabvoiceSH_errstate, 1, 2, 1, 1);
 
-    label_tabvoiceSH_homepointstate = new QLabel(gBox_tabvoiceSH_fsm);
-    label_tabvoiceSH_homepointstate->setObjectName(QString::fromUtf8("label_tabvoiceSH_homepointstate"));
-    label_tabvoiceSH_homepointstate->setAlignment(Qt::AlignHCenter|Qt::AlignCenter);
+    label_tabvoiceSH_detectToystate = new QLabel(gBox_tabvoiceSH_fsm);
+    label_tabvoiceSH_detectToystate->setObjectName(QString::fromUtf8("label_tabvoiceSH_detectToystate"));
+    label_tabvoiceSH_detectToystate->setAlignment(Qt::AlignHCenter|Qt::AlignCenter);
 
-    gridLayout_tabvoiceSH_fsm->addWidget(label_tabvoiceSH_homepointstate, 1, 1, 1, 1);
+    gridLayout_tabvoiceSH_fsm->addWidget(label_tabvoiceSH_detectToystate, 1, 1, 1, 1);
 
     horizontalLayout_17->addLayout(gridLayout_tabvoiceSH_fsm);
 
@@ -722,6 +647,39 @@ void BaseWindow::initUi(QMainWindow *MainWindow) {
     statusBar->setObjectName(QString::fromUtf8("statusBar"));
     MainWindow->setStatusBar(statusBar);
 
+    label_tabmain_motionBridge->setFixedHeight(50);
+    label_tabmain_perceptionBridge->setFixedHeight(50);
+    label_tabmain_rbConn->setFixedHeight(50);
+    label_tabmain_rbIsWell->setFixedHeight(50);
+    label_tabmain_rbEnable->setFixedHeight(50);
+    label_tabmain_plannerBridge->setFixedHeight(50);
+    label_tabmain_dmBridge->setFixedHeight(50);
+    label_tabmain_versionBridge->setFixedHeight(50);
+    label_tabmain_forceSensor->setFixedHeight(50);
+    label_tabmain_d435iConn->setFixedHeight(50);
+    label_tabmain_kinect2Conn->setFixedHeight(50);
+    label_tabmain_shakehandJudge->setFixedHeight(50);
+    label_tabmain_forcebridge->setFixedHeight(50);
+    label_tabmain_pickPlaceBridge->setFixedHeight(50);
+    label_tabmain_fsmBridge->setFixedHeight(50);
+
+    label_tabmain_motionBridge->setAlignment(Qt::AlignCenter);
+    label_tabmain_perceptionBridge->setAlignment(Qt::AlignCenter);
+    label_tabmain_rbConn->setAlignment(Qt::AlignCenter);
+    label_tabmain_rbIsWell->setAlignment(Qt::AlignCenter);
+    label_tabmain_rbEnable->setAlignment(Qt::AlignCenter);
+    label_tabmain_plannerBridge->setAlignment(Qt::AlignCenter);
+    label_tabmain_dmBridge->setAlignment(Qt::AlignCenter);
+    label_tabmain_versionBridge->setAlignment(Qt::AlignCenter);
+    label_tabmain_forceSensor->setAlignment(Qt::AlignCenter);
+    label_tabmain_d435iConn->setAlignment(Qt::AlignCenter);
+    label_tabmain_kinect2Conn->setAlignment(Qt::AlignCenter);
+    label_tabmain_shakehandJudge->setAlignment(Qt::AlignCenter);
+    label_tabmain_forcebridge->setAlignment(Qt::AlignCenter);
+    label_tabmain_pickPlaceBridge->setAlignment(Qt::AlignCenter);
+    label_tabmain_fsmBridge->setAlignment(Qt::AlignCenter);
+
+
     retranslateUi(MainWindow);
 
     tabWidget->setCurrentIndex(1);
@@ -733,24 +691,26 @@ void BaseWindow::retranslateUi(QMainWindow *MainWindow) {
     MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", nullptr));
     label_main_logo->setText(QString());
     label_main_title->setText(QApplication::translate("MainWindow",
-                                                      "\346\231\272\350\203\275\344\272\272\346\234\272\344\272\244\344\272\222\345\271\263\345\217\260",
+                                                      "协作机器人智能交互平台",
                                                       nullptr));
     gBox_tabmain_status->setTitle(QApplication::translate("MainWindow",
                                                           "\350\256\276\345\244\207\350\277\236\346\216\245\347\212\266\346\200\201",
                                                           nullptr));
-    lable_tabmain_handGraw_conn->setText(
-            QApplication::translate("MainWindow", "\347\201\265\345\267\247\346\211\213", nullptr));
-    label_tabmain_forceconn->setText(
-            QApplication::translate("MainWindow", " \345\212\233\346\204\237\345\272\224", nullptr));
-    label_tabmain_rbConn->setText(
-            QApplication::translate("MainWindow", "\346\234\272\345\231\250\344\272\272", nullptr));
-    label_tabmain_force_pic->setText(QString());
-    label_tabmain_d435iConn->setText(QApplication::translate("MainWindow", "d435i\347\233\270\346\234\272", nullptr));
-    label_tabmain_d435i_pic->setText(QString());
-    label_tabmain_rb_pic->setText(QString());
-    label_tabmain_kinect_pic->setText(QString());
-    label_tabmain_kinectconn->setText(QApplication::translate("MainWindow", "kinect\347\233\270\346\234\272", nullptr));
-    lable_tabmain_handGraw_pic->setText(QString());
+    label_tabmain_motionBridge->setText(QApplication::translate("MainWindow", "\350\277\220\345\212\250\346\241\245\350\212\202\347\202\271", nullptr));
+    label_tabmain_perceptionBridge->setText(QApplication::translate("MainWindow", "\346\204\237\347\237\245\346\241\245\350\212\202\347\202\271", nullptr));
+    label_tabmain_rbConn->setText(QApplication::translate("MainWindow", "\346\234\272\345\231\250\344\272\272\350\277\236\346\216\245", nullptr));
+    label_tabmain_rbIsWell->setText(QApplication::translate("MainWindow", "\346\234\272\345\231\250\344\272\272\346\255\243\345\270\270", nullptr));
+    label_tabmain_rbEnable->setText(QApplication::translate("MainWindow", "\346\234\272\345\231\250\344\272\272\344\274\272\346\234\215", nullptr));
+    label_tabmain_plannerBridge->setText(QApplication::translate("MainWindow", "\350\247\204\345\210\222\346\241\245\350\212\202\347\202\271", nullptr));
+    label_tabmain_dmBridge->setText(QApplication::translate("MainWindow", "\346\225\260\346\215\256\346\241\245\350\212\202\347\202\271", nullptr));
+    label_tabmain_versionBridge->setText(QApplication::translate("MainWindow", "\350\247\206\350\247\211\346\241\245\350\212\202\347\202\271", nullptr));
+    label_tabmain_forceSensor->setText(QApplication::translate("MainWindow", "\345\212\233\346\204\237\345\272\224", nullptr));
+    label_tabmain_d435iConn->setText(QApplication::translate("MainWindow", "d435i\347\233\270\346\234\272\350\277\236\346\216\245", nullptr));
+    label_tabmain_kinect2Conn->setText(QApplication::translate("MainWindow", "kinect2\347\233\270\346\234\272\350\277\236\346\216\245", nullptr));
+    label_tabmain_shakehandJudge->setText(QApplication::translate("MainWindow", "\346\217\241\346\211\213\350\256\241\347\256\227\350\212\202\347\202\271", nullptr));
+    label_tabmain_forcebridge->setText(QApplication::translate("MainWindow", "\345\212\233\346\216\247\346\241\245\350\212\202\347\202\271", nullptr));
+    label_tabmain_pickPlaceBridge->setText(QApplication::translate("MainWindow", "\346\212\223\345\217\226\346\241\245\350\212\202\347\202\271", nullptr));
+    label_tabmain_fsmBridge->setText(QApplication::translate("MainWindow", "\347\212\266\346\200\201\346\234\272\350\212\202\347\202\271", nullptr));
     gBox_tabmain_mode->setTitle(
             QApplication::translate("MainWindow", "\346\250\241\345\274\217\351\200\211\346\213\251", nullptr));
     cbox_tabmain_chooseMode->setItemText(0, QApplication::translate("MainWindow",
@@ -776,22 +736,7 @@ void BaseWindow::retranslateUi(QMainWindow *MainWindow) {
     gBox_tabvoiceSH_img->setTitle(
             QApplication::translate("MainWindow", "\345\233\276\345\203\217\346\230\276\347\244\272", nullptr));
     label_tabvoiceSH_image->setText(QString());
-    gBox_tabvoiceSH_status->setTitle(QApplication::translate("MainWindow",
-                                                             "\350\277\220\350\241\214\345\207\206\345\244\207\347\212\266\346\200\201",
-                                                             nullptr));
-    label_tabvoiceSH_rbok->setText(
-            QApplication::translate("MainWindow", "\346\234\272\345\231\250\344\272\272\346\255\243\345\270\270",
-                                    nullptr));
-    label_rbservook->setText(
-            QApplication::translate("MainWindow", "\346\234\272\345\231\250\344\272\272\344\274\272\346\234\215",
-                                    nullptr));
-    label_fsmbridge->setText(QApplication::translate("MainWindow", "\347\212\266\346\200\201\346\234\272", nullptr));
-    label_voiceok->setText(QApplication::translate("MainWindow", "\350\257\255\351\237\263", nullptr));
-    label_dmbridgeok->setText(QApplication::translate("MainWindow", "\346\225\260\346\215\256\346\241\245", nullptr));
-    label_plannerok->setText(QApplication::translate("MainWindow", "\350\247\204\345\210\222\346\241\245", nullptr));
-    label_motionbridgeok->setText(
-            QApplication::translate("MainWindow", "\350\277\220\345\212\250\346\241\245", nullptr));
-    label_forceok->setText(QApplication::translate("MainWindow", "\345\212\233\346\204\237\345\272\224", nullptr));
+
     gBox_tabvoiceSH_fsm->setTitle(
             QApplication::translate("MainWindow", "\347\212\266\346\200\201\346\234\272\347\233\221\346\216\247",
                                     nullptr));
@@ -809,7 +754,7 @@ void BaseWindow::retranslateUi(QMainWindow *MainWindow) {
             QApplication::translate("MainWindow", "\351\200\200\345\207\272\347\212\266\346\200\201", nullptr));
     label_tabvoiceSH_errstate->setText(
             QApplication::translate("MainWindow", "\346\225\205\351\232\234\347\212\266\346\200\201", nullptr));
-    label_tabvoiceSH_homepointstate->setText(
+    label_tabvoiceSH_detectToystate->setText(
             QApplication::translate("MainWindow", "抓取状态", nullptr));
     gBox_tabvoiceSH_operate->setTitle(
             QApplication::translate("MainWindow", "\346\223\215\344\275\234\346\240\217", nullptr));

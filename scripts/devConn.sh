@@ -15,8 +15,9 @@
 #  gnome-terminal -x bash -c "rosrun force_bridge shakeHandJudge" &
   rosrun daq_ros_driver daq_ros_driver &
   sleep 5
-  gnome-terminal -x bash -c "rosrun hscfsm_bridge hscfsm_bridge" &
-  sleep 2
+#  gnome-terminal -x bash -c "rosrun hscfsm_bridge hscfsm_bridge" &
+  rosrun hscfsm_bridge hscfsm_bridge &
+  sleep 5
   rosrun perception_bridge five_finger_scene.sh &
 wait
 exit 0

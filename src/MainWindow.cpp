@@ -24,7 +24,10 @@ void MainWindow::initRosToptic() {
     robStatus_subscriber=Node->subscribe<industrial_msgs::RobotStatus>("robot_status",1,boost::bind(&MainWindow::callback_robStatus_subscriber,this,_1));
     fsmState_subscriber=Node->subscribe<hirop_msgs::taskCmdRet>("/VoiceCtlRob_state",1000,boost::bind(&MainWindow::callback_fsmState_subscriber,this,_1));
     personImg_subcriber=Node->subscribe<sensor_msgs::Image>("videphoto_feedback",1,boost::bind(&MainWindow::callback_peopleDetectImg_subscriber, this, _1));
+    personImg_subcriber=Node->subscribe<sensor_msgs::Image>("/usb_cam/image_raw",1,boost::bind(&MainWindow::callback_peopleDetectImg_subscriber, this, _1));
+    kinect2_subcriber=Node->subscribe<sensor_msgs::Image>("TOTOTOOTOTTO",1,boost::bind(&MainWindow::callback_kinect2_subscriber, this, _1));
     forceSensor_subscriber=Node->subscribe<geometry_msgs::Wrench>("/daq_data",1,boost::bind(&MainWindow::callback_forceSensor_subscriber, this, _1));
+    d435iImagRes_subcriber=Node->subscribe<sensor_msgs::Image>("/camera_base/color/image_raw",1,boost::bind(&MainWindow::callback_d435iImagRes_subcriber, this, _1));
 
     shakeEnd_pub=Node->advertise<hirop_msgs::shakeHandStatus>("/shakeHandJudge/Status",1000);
     voiceOrder_pub=Node->advertise<std_msgs::Int16>("/voice_order",1);
@@ -32,41 +35,48 @@ void MainWindow::initRosToptic() {
 }
 
 void MainWindow::SysVarInit() {
-    //监视对象
-    devDetectorList.push_back(&RobConn_Detector);
-    devDetectorList.push_back(&forceConn_Detector);
-    devDetectorList.push_back(&kinectConn_Detector);
-    devDetectorList.push_back(&d435iConn_Detector);
-    devDetectorList.push_back(&handGrawConn_Detector);
-
-    devDetectorList.push_back(&robNormal_Detector);
-    devDetectorList.push_back(&robServo_Detector);
-    devDetectorList.push_back(&fsmbridge_Detector);
-    devDetectorList.push_back(&voiceNode_Detector);
-    devDetectorList.push_back(&dmbridge_Detector);
-    devDetectorList.push_back(&planbridge_Detector);
-    devDetectorList.push_back(&motionbridge_Detector);
-    devDetectorList.push_back(&forceNode_Detector);
-    devDetectorList.push_back(&forcebridge_Detector);
-    devDetectorList.push_back(&shakeHandJudge_Detector);
-
-    in_nodeNameList.push_back("/dm_bridge");
-    in_nodeNameList.push_back("/force_bridge");
-    in_nodeNameList.push_back("/hscfsm_bridge");
-    in_nodeNameList.push_back("/motion_bridge");
-    in_nodeNameList.push_back("/trajectory_planner");
-    in_nodeNameList.push_back("/shakeHandJudge");
-    in_nodeNameList.push_back("/shakehand_listener");
-
-    fsmStateList.push_back(init_fsmstate);
-    fsmStateList.push_back(prepare_fsmstate);
-    fsmStateList.push_back(detect_fsmstate);
-    fsmStateList.push_back(shakehand_fsmstate);
-    fsmStateList.push_back(wave_fsmstate);
-    fsmStateList.push_back(detectToy_fsmstate);
-    fsmStateList.push_back(dealErr_fsmstate);
-    fsmStateList.push_back(exit_fsmstate);
-
+    //连接状态监控
+    vector<string> devDetectorName\
+    {"rbConn_Detector","rbIsWell_Detector","rbEnable_Detector","versionBridge_Detector","forceSensor_Detector",
+     "d435iConn_Detector","kinect2Conn_Detector","forceBridge_Detector","pickPlaceBridge_Detector","fsmNode_Detector",
+     "shakeJudge_Detector","dmBridge_Detector","plannerBridge_Detector","motionBridge_Detector","perceptionBridge_Detector"
+    };
+    vector<vector<QLabel*>> devDetectorShowLable\
+    {{label_tabmain_rbConn},{label_tabmain_rbIsWell},{label_tabmain_rbEnable},{label_tabmain_versionBridge},{label_tabmain_forceSensor},
+     {label_tabmain_d435iConn},{label_tabmain_kinect2Conn},{label_tabmain_forcebridge},{label_tabmain_pickPlaceBridge},{label_tabmain_fsmBridge},
+     {label_tabmain_shakehandJudge},{label_tabmain_dmBridge},{label_tabmain_plannerBridge},{label_tabmain_motionBridge},{label_tabmain_perceptionBridge}
+    };
+    for (size_t i = 0; i <devDetectorName.size(); ++i) {
+        map_devDetector.insert(pair<string ,devDetector*>(devDetectorName[i],new devDetector{devDetectorName[i],0,true,false,devDetectorShowLable[i]}));
+    }
+    //状态机状态监控
+    vector<string> fsmStateName\
+    {
+            "init","prepare","detection","shakehand",
+            "wave","detectToy","error","exit",
+    };
+    vector<QLabel*> fsmStateShowLable\
+    {
+            label_tabvoiceSH_initstate,label_tabvoiceSH_preparestate,label_tabvoiceSH_detectstate,label_tabvoiceSH_shakehandstate,
+            label_tabvoiceSH_wavestate,label_tabvoiceSH_detectToystate,label_tabvoiceSH_errstate,label_tabvoiceSH_exitstate
+    };
+    for (size_t i = 0; i <fsmStateName.size(); ++i) {
+        map_fsmState.insert(pair<string ,fsmState*>(fsmStateName[i],new fsmState{fsmStateName[i],false,fsmStateShowLable[i]}));
+    }
+    //节点名字监控
+    vector<string > nodeName\
+    {
+        "/vision_bridge","force_bridge","/pickplace_bridge",
+        "/hscfsm_bridge","/shakeHandJudge","/dm_bridge",
+        "/trajectory_planner","/motion_bridge","/perception_bridge"
+    };
+    for (const auto & j : nodeName) {
+        in_nodeNameList.push_back(j);
+    }
+    //初始化状态机颜色标签
+    for (auto &fsmstate : map_fsmState) {
+        lableShowImag(fsmstate.second->lableList_showStatus,Qt::lightGray);
+    }
     Timer_listenStatus = new QTimer(this);
     Timer_listenStatus->setInterval(1000);
     Timer_listenNodeStatus = new QTimer(this);
@@ -100,7 +110,7 @@ void MainWindow::signalAndSlot()
     connect(btn_tab_recoder_ouputRecorder,&QPushButton::clicked,this,&MainWindow::slot_btn_tab_recoder_ouputRecorder);
     connect(btn_tab_recoder_clearRecorder,&QPushButton::clicked,this,&MainWindow::slot_btn_tab_recoder_clearRecorder);
 
-    qRegisterMetaType<vector<QLabel*>>("VQLABLE");
+//    qRegisterMetaType<vector<QLabel*>>("VQLABLE");
     qRegisterMetaType<infoLevel>("infoLevel");
 //    connect(this, SIGNAL(emitLightColor(vector<QLabel*> ,int,String)), this,SLOT(showLightColor(vector<QLabel*> ,int,String)));  //将自定义槽连接到自定义信号
     connect(this, &MainWindow::emitLightColor,this, &MainWindow::showLightColor);
@@ -113,28 +123,23 @@ void MainWindow::signalAndSlot()
 }
 
 void MainWindow::callback_robStatus_subscriber(const industrial_msgs::RobotStatus::ConstPtr robot_status) {
-    locker.lock();
-    RobConn_Detector.lifeNum=100;
-    RobConn_Detector.status= true;
+    map_devDetector["rbConn_Detector"]->lifeNum=100;
+    map_devDetector["rbConn_Detector"]->status= true;
     if(robot_status->in_error.val==0){
-        robNormal_Detector.lifeNum=100;
-        robNormal_Detector.status= true;
+        map_devDetector["rbIsWell_Detector"]->lifeNum=100;
+        map_devDetector["rbIsWell_Detector"]->status= true;
     } else{
-        robNormal_Detector.status= false;
+        map_devDetector["rbIsWell_Detector"]->status= false;
     }
     if(robot_status->drives_powered.val==1){
-        robServo_Detector.lifeNum=100;
-        robServo_Detector.status= true;
+        map_devDetector["rbEnable_Detector"]->lifeNum=100;
+        map_devDetector["rbEnable_Detector"]->status= true;
     } else{
-        robServo_Detector.status= false;
+        map_devDetector["rbEnable_Detector"]->status= false;
     }
-    locker.unlock();
 }
 
 void MainWindow::callback_peopleDetectImg_subscriber(const sensor_msgs::Image_<allocator<void>>::ConstPtr &msg) {
-    kinectConn_Detector.lifeNum=100;
-    kinectConn_Detector.status=true;
-
     const cv_bridge::CvImageConstPtr &ptr = cv_bridge::toCvShare(msg, "bgr8");
     cv::Mat mat = ptr->image;
     QImage qimage = cvMat2QImage(mat);
@@ -145,112 +150,88 @@ void MainWindow::callback_peopleDetectImg_subscriber(const sensor_msgs::Image_<a
 }
 
 void MainWindow::callback_forceSensor_subscriber(const geometry_msgs::Wrench::ConstPtr msg){
-    locker.lock();
-    forceNode_Detector.lifeNum=100;
-    forceNode_Detector.status= true;
-
-    forceConn_Detector.lifeNum=100;
-    forceConn_Detector.status=true;
-    locker.unlock();
+    map_devDetector["forceSensor_Detector"]->lifeNum=100;
+    map_devDetector["forceSensor_Detector"]->status= true;
 }
 
 //监听系统各设备状态
 void MainWindow::slot_timer_updateStatus() {
-
-    locker.lock();
-    for (auto detector : devDetectorList)
+    for (auto &detector : map_devDetector)
     {
-        if (detector->lifeNum > 0)
+        if(detector.second->real_time)
         {
-            detector->lifeNum -= 50;
-        } else
-        {
-            detector->lifeNum = 0;
-            detector->status = false;
-        }
-        //刷新检测器标签状态
-        if (detector->status)
-        {
-            emit emitLightColor(detector->lableList_showStatus, detector->showType,"green");
-        } else
-        {
-            emit emitLightColor(detector->lableList_showStatus, detector->showType,"red");
+            if (detector.second->lifeNum > 0) {
+                detector.second->lifeNum -= 50;
+            } else {
+                detector.second->lifeNum = 0;
+                detector.second->status = false;
+            }
+            //刷新检测器标签状态
+            if (detector.second->status) {
+                emit emitLightColor(detector.second->lableList_showStatus, "green");
+            } else {
+                emit emitLightColor(detector.second->lableList_showStatus, "red");
+            }
         }
     }
-    locker.unlock();
 }
 
 void MainWindow::slot_timer_listenNodeStatus(){
     std::vector<bool > out_nodeIsAlive;
     checkNodeAlive(in_nodeNameList,out_nodeIsAlive);
-    locker.lock();
     if(out_nodeIsAlive[0]){
-        dmbridge_Detector.lifeNum=100;
-        dmbridge_Detector.status=true;
+        map_devDetector["versionBridge_Detector"]->lifeNum=100;
+        map_devDetector["versionBridge_Detector"]->status=true;
     }
     if(out_nodeIsAlive[1]){
-        forcebridge_Detector.lifeNum=100;
-        forcebridge_Detector.status=true;
+        map_devDetector["forceBridge_Detector"]->lifeNum=100;
+        map_devDetector["forceBridge_Detector"]->status=true;
     }
     if(out_nodeIsAlive[2]){
-        fsmbridge_Detector.lifeNum=100;
-        fsmbridge_Detector.status=true;
+        map_devDetector["pickPlaceBridge_Detector"]->lifeNum=100;
+        map_devDetector["pickPlaceBridge_Detector"]->status=true;
     }
     if(out_nodeIsAlive[3]){
-        motionbridge_Detector.lifeNum=100;
-        motionbridge_Detector.status=true;
+        map_devDetector["fsmNode_Detector"]->lifeNum=100;
+        map_devDetector["fsmNode_Detector"]->status=true;
     }
     if(out_nodeIsAlive[4]){
-        planbridge_Detector.lifeNum=100;
-        planbridge_Detector.status=true;
+        map_devDetector["shakeJudge_Detector"]->lifeNum=100;
+        map_devDetector["shakeJudge_Detector"]->status=true;
     }
     if(out_nodeIsAlive[5]){
-        shakeHandJudge_Detector.lifeNum=100;
-        shakeHandJudge_Detector.status=true;
+        map_devDetector["dmBridge_Detector"]->lifeNum=100;
+        map_devDetector["dmBridge_Detector"]->status=true;
     }
     if(out_nodeIsAlive[6]){
-        voiceNode_Detector.lifeNum=100;
-        voiceNode_Detector.status=true;
+        map_devDetector["plannerBridge_Detector"]->lifeNum=100;
+        map_devDetector["plannerBridge_Detector"]->status=true;
     }
-    locker.unlock();
+    if(out_nodeIsAlive[7]){
+        map_devDetector["motionBridge_Detector"]->lifeNum=100;
+        map_devDetector["motionBridge_Detector"]->status=true;
+    }
+    if(out_nodeIsAlive[8]){
+        map_devDetector["perceptionBridge_Detector"]->lifeNum=100;
+        map_devDetector["perceptionBridge_Detector"]->status=true;
+    }
 
 }
 
-
-void MainWindow::showLightColor(vector<QLabel*> label_list,int showType, string color) {
-
-    switch (showType){
-        case 0:
-            if(color=="red")
-            {
-                for(auto label:label_list){
-                    label->setPixmap(fitpixmap_redLight);
-                }
-            } else if(color=="green")
-            {
-                for(auto label:label_list) {
-                    label->setPixmap(fitpixmap_greenLight);
-                }
-                            }
-            break;
-        case 1:
-            if(color=="red")
-            {
-                for(auto label:label_list)
-                {
-                    label->setStyleSheet("background: rgb(255,0,0)");
-                }
-            } else if(color=="green")
-            {
-                for(auto label:label_list)
-                {
-                    label->setStyleSheet("background: rgb(0,255,0)");
-                }
-            }
-            break;
+void MainWindow::showLightColor(vector<QLabel*> label_list, string color) {
+    if(color=="red")
+    {
+        for(auto label:label_list)
+        {
+            lableShowImag(label,Qt::red);
+        }
+    } else if(color=="green")
+    {
+        for(auto label:label_list)
+        {
+            lableShowImag(label,Qt::green);
+        }
     }
-
-
 }
 
 void MainWindow::checkNodeAlive(const std::vector<std::string>& in_nodeNameList, std::vector<bool >& out_nodeIsAlive){
@@ -264,7 +245,7 @@ void MainWindow::checkNodeAlive(const std::vector<std::string>& in_nodeNameList,
     ros::master::getNodes(curAliveNodes);
     for (auto curNodeName :curAliveNodes)
     {
-        for (int i = 0; i <in_nodeNameList.size(); ++i)
+        for (size_t i = 0; i <in_nodeNameList.size(); ++i)
         {
             if(curNodeName==in_nodeNameList[i])
             {
@@ -289,10 +270,15 @@ void MainWindow::slot_btn_tabmain_beginRun(){
     hsr_rosi_device::SetEnableSrv srv;
     srv.request.enable= true;
     RobEnable_client.call(srv);
-    system("gnome-terminal -x bash -c \"rosrun force_bridge shakeHandJudge\" &");
+    if(!map_devDetector["shakeJudge_Detector"]->status){
+        cout<<"打开握手计算节点"<<endl;
+        system("rosrun force_bridge shakeHandJudge &");
+    }
     sleep(1);
-//    system("gnome-terminal -x bash -c \"roslaunch force_bridge bring_up_realRobot.launch \" &");
-    system("roslaunch force_bridge bring_up_realRobot.launch &");
+    if(!map_devDetector["forceBridge_Detector"]->status){
+        cout<<"打开握手节点"<<endl;
+        system("roslaunch force_bridge bring_up_realRobot.launch &");
+    }
 }
 
 
@@ -303,10 +289,24 @@ void MainWindow::slot_btn_tabmain_sysStop() {
 }
 
 void MainWindow::slot_btn_tabmain_sysReset() {
-    system("rosrun openni2_tracker voice_shutdown.sh &");
-    system("rosrun openni2_tracker vision_shutdown.sh &");
-    system("rosnode kill $(rosnode list |grep -v handrb_ui)");
-    startUpFlag_devconn= false;
+//    system("rosrun openni2_tracker voice_shutdown.sh &");
+//    system("rosrun openni2_tracker vision_shutdown.sh &");
+    std::thread t([&]{
+        btn_tabmain_sysReset->setEnabled(false);
+        system("rosnode kill $(rosnode list |grep -v handrb_ui ) &");
+        sleep(5);
+        cout<<"5s休眠完"<<endl;
+        system("kill -9 $(ps -ef | grep kinect2* | awk '{print $2}')");
+        system("echo y| rosrun grabrb_ui clearNode.sh &");
+
+        startUpFlag_devconn= false;
+        btn_tabmain_sysReset->setEnabled(true);
+    });
+    t.detach();
+    //初始化状态机颜色标签
+    for (auto &fsmstate : map_fsmState) {
+        lableShowImag(fsmstate.second->lableList_showStatus,Qt::lightGray);
+    }
 }
 
 void MainWindow::slot_btn_tabvoiceSH_run() {
@@ -341,10 +341,7 @@ void MainWindow::slot_btn_tabvoiceSH_grabToy(){
     {
         emit emitQmessageBox(infoLevel::warning,QString("状态机服务连接失败!"));
     }
-//    std_msgs::Int16 msg;
-//    msg.data=3;
-//    voiceOrder_pub.publish(msg);
-//    sleep(1);
+
 
 }
 
@@ -384,8 +381,8 @@ void MainWindow::slot_btn_rbSetEnable() {
     hsr_rosi_device::SetEnableSrv srv;
     srv.request.enable= true;
     RobEnable_client.call(srv);
-    sleep(2);
-    system("  roslaunch force_bridge bring_up_realRobot.launch &");
+//    sleep(2);
+//    system("  roslaunch force_bridge bring_up_realRobot.launch &");
 }
 
 void MainWindow::slot_btn_rbReset() {
@@ -423,22 +420,20 @@ void MainWindow::showQmessageBox(infoLevel level, QString info) {
 }
 
 void MainWindow::callback_fsmState_subscriber(const hirop_msgs::taskCmdRet::ConstPtr msg) {
-    cout<<msg->behevior<<endl;
     if(msg->behevior=="initing"){
-        for (auto fsmstate : fsmStateList) {
-            if(fsmstate.stateName==msg->state){
-                fsmstate.lableList_showStatus->setStyleSheet("background: rgb(0,255,0)");
+        for (auto &fsmstate : map_fsmState) {
+            if(fsmstate.second->stateName==msg->state){
+                lableShowImag(fsmstate.second->lableList_showStatus,Qt::green);
             }
         }
     }
     if(msg->behevior=="quiting"){
-        for (auto fsmstate : fsmStateList) {
-            if(fsmstate.stateName==msg->state){
-                fsmstate.lableList_showStatus->setStyleSheet("background: rgb(255,0,0)");
+        for (auto &fsmstate : map_fsmState) {
+            if(fsmstate.second->stateName==msg->state){
+                lableShowImag(fsmstate.second->lableList_showStatus,Qt::red);
             }
         }
     }
-
 }
 
 QImage MainWindow::cvMat2QImage(const cv::Mat &mat) {
@@ -483,6 +478,24 @@ QImage MainWindow::cvMat2QImage(const cv::Mat &mat) {
     {
         return QImage();
     }
+}
+
+void MainWindow::lableShowImag(QLabel *lable, Qt::GlobalColor color) {
+//    lock_showImg.lock();
+    palette.setBrush(lable->backgroundRole(),QBrush(color));
+    lable->setPalette(palette);
+    lable->setAutoFillBackground(true);
+//    lock_showImg.unlock();
+}
+
+void MainWindow::callback_d435iImagRes_subcriber(const sensor_msgs::Image::ConstPtr &msg) {
+    map_devDetector["d435iConn_Detector"]->lifeNum=100;
+    map_devDetector["d435iConn_Detector"]->status= true;
+}
+
+void MainWindow::callback_kinect2_subscriber(const sensor_msgs::Image_<allocator<void>>::ConstPtr &msg) {
+    map_devDetector["kinect2Conn_Detector"]->lifeNum=100;
+    map_devDetector["kinect2Conn_Detector"]->status= true;
 }
 
 

@@ -79,3 +79,12 @@ target_link_libraries(
         ${OpenCV_LIBS}
 )
 
+add_executable(testui
+        src/test.cpp
+        )
+
+target_link_libraries(
+        testui
+        ${catkin_LIBRARIES}
+)
+

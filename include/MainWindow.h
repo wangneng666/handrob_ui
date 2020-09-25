@@ -32,6 +32,7 @@
 #include "ros/ros.h"
 #include <iostream>
 #include <fstream>
+#include <thread>
 using namespace std;
 
 //Q_DECLARE_METATYPE(vector<QLabel*>) ;
@@ -41,7 +42,7 @@ enum  infoLevel{information,warning};
 struct  devDetector{
     string name; //设备名
     int lifeNum; //生命值
-    int showType;//
+    bool real_time;//实时监控与否
     bool status; //状态
     vector<QLabel*> lableList_showStatus;//状态显示lable
 };
@@ -60,34 +61,11 @@ public:
 private:
     bool startUpFlag_devconn= false;
     QMutex locker;
-    vector<string> in_nodeNameList;
     vector<devDetector*> devDetectorList;//设备监控器列表
-    devDetector RobConn_Detector={"RobConn",0, 0, false,{label_tabmain_rb_pic}}; //机器人连接状态
-    devDetector forceConn_Detector={"forceConn",0, 0,false,{label_tabmain_force_pic}}; //机器人连接状态
-    devDetector kinectConn_Detector={"kinectConn",0, 0,false,{label_tabmain_kinect_pic}}; //机器人连接状态
-    devDetector d435iConn_Detector={"d435iConn",0, 0,false,{label_tabmain_d435i_pic}}; //机器人连接状态
-    devDetector handGrawConn_Detector={"handGrawConn",0, 0,false,{lable_tabmain_handGraw_pic}}; //机器人连接状态
-
-    devDetector robNormal_Detector={"robNormal_Detector",0, 1,false,{label_tabvoiceSH_rbok,label_tabstepSH_rbNormal}}; //机器人连接状态
-    devDetector robServo_Detector={"robServo_Detector",0, 1,false,{label_rbservook,label_tabstepSH_rbservoOk}}; //机器人连接状态
-    devDetector fsmbridge_Detector={"fsmbridge_Detector",0, 1,false,{label_fsmbridge,label_fsmbridgeok}}; //机器人连接状态
-    devDetector voiceNode_Detector={"voiceNode_Detector",0, 1,false,{label_voiceok}}; //机器人连接状态
-    devDetector dmbridge_Detector={"dmbridge_Detector",0, 1,false,{label_dmbridgeok,label_tabstepSH_dmbridgeOk}}; //机器人连接状态
-    devDetector planbridge_Detector={"planbridge_Detector",0, 1,false,{label_tabstepSH_plannerOk,label_plannerok}}; //机器人连接状态
-    devDetector motionbridge_Detector={"motionbridge_Detector",0, 1,false,{label_motionbridgeok,label_tabstepSH_motionbridgeOk}}; //机器人连接状态
-    devDetector forceNode_Detector={"forceNode_Detector",0, 1,false,{label_forceok,label_tabstepSH_forceOk}}; //机器人连接状态
-    devDetector forcebridge_Detector={"forcebridge_Detector",0, 1,false,{label_forcebridge,label_tabstepSH_forcebridgeok}}; //机器人连接状态
-    devDetector shakeHandJudge_Detector={"shakeHandJudge_Detector",0, 1,false,{label_shakehandJudge}}; //机器人连接状态
-
-    vector<fsmState> fsmStateList;
-    fsmState init_fsmstate{"init",true,label_tabvoiceSH_initstate};
-    fsmState prepare_fsmstate{"prepare",true,label_tabvoiceSH_preparestate};
-    fsmState detect_fsmstate{"detection",true,label_tabvoiceSH_detectstate};
-    fsmState shakehand_fsmstate{"shakehand",true,label_tabvoiceSH_shakehandstate};
-    fsmState wave_fsmstate{"wave",true,label_tabvoiceSH_wavestate};
-    fsmState detectToy_fsmstate{"detectToy",true,label_tabvoiceSH_homepointstate};
-    fsmState dealErr_fsmstate{"dealErr",true,label_tabvoiceSH_errstate};
-    fsmState exit_fsmstate{"exit",true,label_tabvoiceSH_exitstate};
+    QPalette palette;
+    map<string, devDetector*> map_devDetector;//运行准备状态监控器
+    map<string, fsmState*> map_fsmState;      //状态机状态监控
+    vector<string> in_nodeNameList;           //ros节点名称列表
 
     QTimer* Timer_listenStatus;
     QTimer* Timer_listenNodeStatus;
@@ -102,6 +80,8 @@ private:
     ros::Subscriber peopleDetectImg_subscriber;
     ros::Subscriber forceSensor_subscriber;
     ros::Subscriber personImg_subcriber;
+    ros::Subscriber d435iImagRes_subcriber;
+    ros::Subscriber kinect2_subcriber;
 
     ros::Publisher shakeEnd_pub;
     ros::Publisher voiceOrder_pub;
@@ -119,7 +99,10 @@ private:
     void SysVarInit();
     //处理所有信号和槽函数
     void signalAndSlot();
-    //按钮槽函数
+
+    void lableShowImag(QLabel *lable, Qt::GlobalColor color);
+
+        //按钮槽函数
     void slot_btn_tabmain_devConn();
     void slot_btn_tabmain_beginRun();
     void slot_btn_tabmain_sysStop();
@@ -147,15 +130,17 @@ private:
     //ros节点回调函数
     void callback_robStatus_subscriber(const industrial_msgs::RobotStatus::ConstPtr robot_status);
     void callback_peopleDetectImg_subscriber(const sensor_msgs::Image::ConstPtr& msg);
+    void callback_d435iImagRes_subcriber(const sensor_msgs::Image::ConstPtr& msg);
+    void callback_kinect2_subscriber(const sensor_msgs::Image::ConstPtr& msg);
     void callback_forceSensor_subscriber(const geometry_msgs::Wrench::ConstPtr msg);
     void callback_fsmState_subscriber(const hirop_msgs::taskCmdRet::ConstPtr msg);
 
 signals:
-    void emitLightColor(vector<QLabel*> label_list,int showType,string color);
+    void emitLightColor(vector<QLabel*> label_list,string color);
     void emitQmessageBox(infoLevel level,QString info);
 
 private slots:
-    void showLightColor(vector<QLabel*>  label_list,int showType,string color);
+    void showLightColor(vector<QLabel*>  label_list,string color);
     void showQmessageBox(infoLevel level,QString info);
 
 };
