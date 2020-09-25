@@ -105,6 +105,7 @@ public:
     QGroupBox *gBox_tabmain_func;
     QHBoxLayout *horizontalLayout_7;
     QPushButton *btn_tabmain_devConn;
+    QPushButton *btn_tabmain_beginRun;
     QPushButton *btn_tabmain_sysStop;
     QPushButton *btn_tabmain_sysReset;
 
@@ -145,6 +146,7 @@ public:
     QHBoxLayout *hLayout_tabvoiceSH_123;
     QPushButton *btn_tabvoiceSH_run;
     QPushButton *btn_tabvoiceSH_normalstop;
+    QPushButton *btn_tabvoiceSH_grabToy;
     QPushButton *btn_tabvoiceSH_quickstop;
 
     QWidget *tab_stepshankehand;

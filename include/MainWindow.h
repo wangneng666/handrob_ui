@@ -26,7 +26,8 @@
 #include "std_srvs/SetBool.h"
 #include "hirop_msgs/taskInputCmd.h"
 #include "hirop_msgs/taskCmdRet.h"
-
+#include "hirop_msgs/shakeHandStatus.h"
+#include "std_msgs/Int16.h"
 //标准库
 #include "ros/ros.h"
 #include <iostream>
@@ -58,7 +59,7 @@ public:
     ~MainWindow();
 private:
     bool startUpFlag_devconn= false;
-
+    QMutex locker;
     vector<string> in_nodeNameList;
     vector<devDetector*> devDetectorList;//设备监控器列表
     devDetector RobConn_Detector={"RobConn",0, 0, false,{label_tabmain_rb_pic}}; //机器人连接状态
@@ -84,7 +85,7 @@ private:
     fsmState detect_fsmstate{"detection",true,label_tabvoiceSH_detectstate};
     fsmState shakehand_fsmstate{"shakehand",true,label_tabvoiceSH_shakehandstate};
     fsmState wave_fsmstate{"wave",true,label_tabvoiceSH_wavestate};
-    fsmState homepoint_fsmstate{"homepoint",true,label_tabvoiceSH_homepointstate};
+    fsmState detectToy_fsmstate{"detectToy",true,label_tabvoiceSH_homepointstate};
     fsmState dealErr_fsmstate{"dealErr",true,label_tabvoiceSH_errstate};
     fsmState exit_fsmstate{"exit",true,label_tabvoiceSH_exitstate};
 
@@ -102,6 +103,10 @@ private:
     ros::Subscriber forceSensor_subscriber;
     ros::Subscriber personImg_subcriber;
 
+    ros::Publisher shakeEnd_pub;
+    ros::Publisher voiceOrder_pub;
+    ros::Publisher listenToExit_pub;
+
 public:
     //初始化Ros话题与服务
     void initRosToptic();
@@ -116,11 +121,15 @@ private:
     void signalAndSlot();
     //按钮槽函数
     void slot_btn_tabmain_devConn();
+    void slot_btn_tabmain_beginRun();
     void slot_btn_tabmain_sysStop();
     void slot_btn_tabmain_sysReset();
+
     void slot_btn_tabvoiceSH_run();
     void slot_btn_tabvoiceSH_normalstop();
+    void slot_btn_tabvoiceSH_grabToy();
     void slot_btn_tabvoiceSH_quickstop();
+
     void slot_btn_tabstepSH_beginshakehand();
     void slot_btn_tabstepSH_endshakehand();
     void slot_btn_tabstepSH_stop();
@@ -138,8 +147,9 @@ private:
     //ros节点回调函数
     void callback_robStatus_subscriber(const industrial_msgs::RobotStatus::ConstPtr robot_status);
     void callback_peopleDetectImg_subscriber(const sensor_msgs::Image::ConstPtr& msg);
-    void callback_forceSensor_subscriber(geometry_msgs::Wrench msg);
+    void callback_forceSensor_subscriber(const geometry_msgs::Wrench::ConstPtr msg);
     void callback_fsmState_subscriber(const hirop_msgs::taskCmdRet::ConstPtr msg);
+
 signals:
     void emitLightColor(vector<QLabel*> label_list,int showType,string color);
     void emitQmessageBox(infoLevel level,QString info);

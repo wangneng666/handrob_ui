@@ -241,9 +241,16 @@ void BaseWindow::initUi(QMainWindow *MainWindow) {
     horizontalLayout_7->setObjectName(QString::fromUtf8("horizontalLayout_7"));
     btn_tabmain_devConn = new QPushButton(gBox_tabmain_func);
     btn_tabmain_devConn->setObjectName(QString::fromUtf8("btn_tabmain_devConn"));
-    btn_tabmain_devConn->setMaximumSize(QSize(150, 50));
 
     horizontalLayout_7->addWidget(btn_tabmain_devConn);
+
+    btn_tabmain_devConn->setMaximumSize(QSize(150, 50));
+
+    btn_tabmain_beginRun = new QPushButton(gBox_tabmain_func);
+    btn_tabmain_beginRun->setObjectName(QString::fromUtf8("btn_tabmain_beginRun"));
+    btn_tabmain_beginRun->setMaximumSize(QSize(150, 50));
+    btn_tabmain_beginRun->setText("启动运行");
+    horizontalLayout_7->addWidget(btn_tabmain_beginRun);
 
     btn_tabmain_sysStop = new QPushButton(gBox_tabmain_func);
     btn_tabmain_sysStop->setObjectName(QString::fromUtf8("btn_tabmain_sysStop"));
@@ -291,8 +298,7 @@ void BaseWindow::initUi(QMainWindow *MainWindow) {
     horizontalLayout_15->setObjectName(QString::fromUtf8("horizontalLayout_15"));
     label_tabvoiceSH_image = new QLabel(gBox_tabvoiceSH_img);
     label_tabvoiceSH_image->setObjectName(QString::fromUtf8("label_tabvoiceSH_image"));
-    label_tabvoiceSH_image->setMaximumSize(QSize(300, 300));
-    label_tabvoiceSH_image->setPixmap(QPixmap(QString::fromUtf8("../../../demo_project/p7/catkin_ws/src/HsDualAppBridge/rb_ui/photo/question.jpg")));
+//    label_tabvoiceSH_image->setMaximumSize(QSize(300, 300));
 
     horizontalLayout_15->addWidget(label_tabvoiceSH_image);
 
@@ -465,6 +471,12 @@ void BaseWindow::initUi(QMainWindow *MainWindow) {
     btn_tabvoiceSH_normalstop->setMaximumSize(QSize(150, 50));
 
     hLayout_tabvoiceSH_123->addWidget(btn_tabvoiceSH_normalstop);
+
+    btn_tabvoiceSH_grabToy = new QPushButton(gBox_tabvoiceSH_operate);
+    btn_tabvoiceSH_grabToy->setObjectName(QString::fromUtf8("btn_tabvoiceSH_grabToy"));
+    btn_tabvoiceSH_grabToy->setMaximumSize(QSize(150, 50));
+    btn_tabvoiceSH_grabToy->setText("抓娃娃");
+    hLayout_tabvoiceSH_123->addWidget(btn_tabvoiceSH_grabToy);
 
     btn_tabvoiceSH_quickstop = new QPushButton(gBox_tabvoiceSH_operate);
     btn_tabvoiceSH_quickstop->setObjectName(QString::fromUtf8("btn_tabvoiceSH_quickstop"));
@@ -798,7 +810,7 @@ void BaseWindow::retranslateUi(QMainWindow *MainWindow) {
     label_tabvoiceSH_errstate->setText(
             QApplication::translate("MainWindow", "\346\225\205\351\232\234\347\212\266\346\200\201", nullptr));
     label_tabvoiceSH_homepointstate->setText(
-            QApplication::translate("MainWindow", "\345\216\237\347\202\271\347\212\266\346\200\201", nullptr));
+            QApplication::translate("MainWindow", "抓取状态", nullptr));
     gBox_tabvoiceSH_operate->setTitle(
             QApplication::translate("MainWindow", "\346\223\215\344\275\234\346\240\217", nullptr));
     btn_tabvoiceSH_run->setText(QApplication::translate("MainWindow", "\345\220\257\345\212\250", nullptr));

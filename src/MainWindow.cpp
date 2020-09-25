@@ -15,15 +15,20 @@ MainWindow::~MainWindow() {
 
 void MainWindow::initRosToptic() {
 
+
     fsmCmd_client = Node->serviceClient<hirop_msgs::taskInputCmd>("/VoiceCtlRob_TaskServerCmd");
     RobReset_client = Node->serviceClient<hsr_rosi_device::ClearFaultSrv>("/clear_robot_fault");
     RobEnable_client = Node->serviceClient<hsr_rosi_device::SetEnableSrv>("/set_robot_enable");
     RobSetMode_client = Node->serviceClient<hsr_rosi_device::setModeSrv>("/set_mode_srv");
 
     robStatus_subscriber=Node->subscribe<industrial_msgs::RobotStatus>("robot_status",1,boost::bind(&MainWindow::callback_robStatus_subscriber,this,_1));
-    fsmState_subscriber=Node->subscribe<hirop_msgs::taskCmdRet>("/VoiceCtlRob_state",1,boost::bind(&MainWindow::callback_fsmState_subscriber,this,_1));
+    fsmState_subscriber=Node->subscribe<hirop_msgs::taskCmdRet>("/VoiceCtlRob_state",1000,boost::bind(&MainWindow::callback_fsmState_subscriber,this,_1));
     personImg_subcriber=Node->subscribe<sensor_msgs::Image>("videphoto_feedback",1,boost::bind(&MainWindow::callback_peopleDetectImg_subscriber, this, _1));
+    forceSensor_subscriber=Node->subscribe<geometry_msgs::Wrench>("/daq_data",1,boost::bind(&MainWindow::callback_forceSensor_subscriber, this, _1));
 
+    shakeEnd_pub=Node->advertise<hirop_msgs::shakeHandStatus>("/shakeHandJudge/Status",1000);
+    voiceOrder_pub=Node->advertise<std_msgs::Int16>("/voice_order",1);
+    listenToExit_pub=Node->advertise<std_msgs::Int16>("/listen_toexit",1);
 }
 
 void MainWindow::SysVarInit() {
@@ -51,13 +56,14 @@ void MainWindow::SysVarInit() {
     in_nodeNameList.push_back("/motion_bridge");
     in_nodeNameList.push_back("/trajectory_planner");
     in_nodeNameList.push_back("/shakeHandJudge");
+    in_nodeNameList.push_back("/shakehand_listener");
 
     fsmStateList.push_back(init_fsmstate);
     fsmStateList.push_back(prepare_fsmstate);
     fsmStateList.push_back(detect_fsmstate);
     fsmStateList.push_back(shakehand_fsmstate);
     fsmStateList.push_back(wave_fsmstate);
-    fsmStateList.push_back(homepoint_fsmstate);
+    fsmStateList.push_back(detectToy_fsmstate);
     fsmStateList.push_back(dealErr_fsmstate);
     fsmStateList.push_back(exit_fsmstate);
 
@@ -66,18 +72,19 @@ void MainWindow::SysVarInit() {
     Timer_listenNodeStatus = new QTimer(this);
     Timer_listenNodeStatus->setInterval(1000);
 
-
 }
 
 void MainWindow::signalAndSlot()
 {
     //主界面
     connect(btn_tabmain_devConn,&QPushButton::clicked,this,&MainWindow::slot_btn_tabmain_devConn);
+    connect(btn_tabmain_beginRun,&QPushButton::clicked,this,&MainWindow::slot_btn_tabmain_beginRun);
     connect(btn_tabmain_sysStop,&QPushButton::clicked,this,&MainWindow::slot_btn_tabmain_sysStop);
     connect(btn_tabmain_sysReset,&QPushButton::clicked,this,&MainWindow::slot_btn_tabmain_sysReset);
     //声控握手页面
     connect(btn_tabvoiceSH_run,&QPushButton::clicked,this,&MainWindow::slot_btn_tabvoiceSH_run);
     connect(btn_tabvoiceSH_normalstop,&QPushButton::clicked,this,&MainWindow::slot_btn_tabvoiceSH_normalstop);
+    connect(btn_tabvoiceSH_grabToy,&QPushButton::clicked,this,&MainWindow::slot_btn_tabvoiceSH_grabToy);
     connect(btn_tabvoiceSH_quickstop,&QPushButton::clicked,this,&MainWindow::slot_btn_tabvoiceSH_quickstop);
     //手动握手页面
     connect(btn_tabstepSH_beginshakehand,&QPushButton::clicked,this,&MainWindow::slot_btn_tabstepSH_beginshakehand);
@@ -106,6 +113,7 @@ void MainWindow::signalAndSlot()
 }
 
 void MainWindow::callback_robStatus_subscriber(const industrial_msgs::RobotStatus::ConstPtr robot_status) {
+    locker.lock();
     RobConn_Detector.lifeNum=100;
     RobConn_Detector.status= true;
     if(robot_status->in_error.val==0){
@@ -120,29 +128,36 @@ void MainWindow::callback_robStatus_subscriber(const industrial_msgs::RobotStatu
     } else{
         robServo_Detector.status= false;
     }
+    locker.unlock();
 }
 
 void MainWindow::callback_peopleDetectImg_subscriber(const sensor_msgs::Image_<allocator<void>>::ConstPtr &msg) {
-    //如果标志为关闭行人检测
-    // if(!flag_switchPersonDecBtnText){
-    //     return;
-    // }
+    kinectConn_Detector.lifeNum=100;
+    kinectConn_Detector.status=true;
+
     const cv_bridge::CvImageConstPtr &ptr = cv_bridge::toCvShare(msg, "bgr8");
     cv::Mat mat = ptr->image;
     QImage qimage = cvMat2QImage(mat);
     QPixmap tmp_pixmap = QPixmap::fromImage(qimage);
-    QPixmap new_pixmap = tmp_pixmap.scaled(label_tabvoiceSH_image->width(), label_tabvoiceSH_image->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);  // 饱满填充
+    QPixmap new_pixmap = tmp_pixmap.scaled(msg->width, msg->height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);  // 饱满填充
 //    QPixmap tmp_pixmap = pixmap1.scaled(label_picture1->width(), label_picture1->height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);  // 按比例缩放
     label_tabvoiceSH_image->setPixmap(new_pixmap);
 }
-void MainWindow::callback_forceSensor_subscriber(geometry_msgs::Wrench msg){
+
+void MainWindow::callback_forceSensor_subscriber(const geometry_msgs::Wrench::ConstPtr msg){
+    locker.lock();
     forceNode_Detector.lifeNum=100;
     forceNode_Detector.status= true;
-}
 
+    forceConn_Detector.lifeNum=100;
+    forceConn_Detector.status=true;
+    locker.unlock();
+}
 
 //监听系统各设备状态
 void MainWindow::slot_timer_updateStatus() {
+
+    locker.lock();
     for (auto detector : devDetectorList)
     {
         if (detector->lifeNum > 0)
@@ -162,11 +177,13 @@ void MainWindow::slot_timer_updateStatus() {
             emit emitLightColor(detector->lableList_showStatus, detector->showType,"red");
         }
     }
+    locker.unlock();
 }
 
 void MainWindow::slot_timer_listenNodeStatus(){
-     std::vector<bool > out_nodeIsAlive;
+    std::vector<bool > out_nodeIsAlive;
     checkNodeAlive(in_nodeNameList,out_nodeIsAlive);
+    locker.lock();
     if(out_nodeIsAlive[0]){
         dmbridge_Detector.lifeNum=100;
         dmbridge_Detector.status=true;
@@ -191,6 +208,12 @@ void MainWindow::slot_timer_listenNodeStatus(){
         shakeHandJudge_Detector.lifeNum=100;
         shakeHandJudge_Detector.status=true;
     }
+    if(out_nodeIsAlive[6]){
+        voiceNode_Detector.lifeNum=100;
+        voiceNode_Detector.status=true;
+    }
+    locker.unlock();
+
 }
 
 
@@ -262,6 +285,17 @@ void MainWindow::slot_btn_tabmain_devConn() {
 
 }
 
+void MainWindow::slot_btn_tabmain_beginRun(){
+    hsr_rosi_device::SetEnableSrv srv;
+    srv.request.enable= true;
+    RobEnable_client.call(srv);
+    system("gnome-terminal -x bash -c \"rosrun force_bridge shakeHandJudge\" &");
+    sleep(1);
+//    system("gnome-terminal -x bash -c \"roslaunch force_bridge bring_up_realRobot.launch \" &");
+    system("roslaunch force_bridge bring_up_realRobot.launch &");
+}
+
+
 void MainWindow::slot_btn_tabmain_sysStop() {
     hsr_rosi_device::SetEnableSrv srv;
     srv.request.enable= false;
@@ -295,6 +329,26 @@ void MainWindow::slot_btn_tabvoiceSH_normalstop() {
     }
 }
 
+void MainWindow::slot_btn_tabvoiceSH_grabToy(){
+    std_msgs::Int16 msg;
+    msg.data=1;
+    listenToExit_pub.publish(msg);
+
+    hirop_msgs::taskInputCmd srv;
+    srv.request.taskName="VoiceCtlRob";
+    srv.request.behavior="todetectToy";
+    if(!fsmCmd_client.call(srv))
+    {
+        emit emitQmessageBox(infoLevel::warning,QString("状态机服务连接失败!"));
+    }
+//    std_msgs::Int16 msg;
+//    msg.data=3;
+//    voiceOrder_pub.publish(msg);
+//    sleep(1);
+
+}
+
+
 void MainWindow::slot_btn_tabvoiceSH_quickstop() {
     //1.首先下使能
     hsr_rosi_device::SetEnableSrv srv;
@@ -311,7 +365,11 @@ void MainWindow::slot_btn_tabvoiceSH_quickstop() {
 }
 
 void MainWindow::slot_btn_tabstepSH_beginshakehand() {
-
+    hirop_msgs::shakeHandStatus msg;
+    msg.shakeHand_count=1;
+    msg.shakeHand_over=true;
+    shakeEnd_pub.publish(msg);
+    sleep(1);
 }
 
 void MainWindow::slot_btn_tabstepSH_endshakehand() {
@@ -326,6 +384,8 @@ void MainWindow::slot_btn_rbSetEnable() {
     hsr_rosi_device::SetEnableSrv srv;
     srv.request.enable= true;
     RobEnable_client.call(srv);
+    sleep(2);
+    system("  roslaunch force_bridge bring_up_realRobot.launch &");
 }
 
 void MainWindow::slot_btn_rbReset() {
@@ -424,3 +484,5 @@ QImage MainWindow::cvMat2QImage(const cv::Mat &mat) {
         return QImage();
     }
 }
+
+
