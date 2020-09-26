@@ -24,8 +24,11 @@ void MainWindow::initRosToptic() {
     robStatus_subscriber=Node->subscribe<industrial_msgs::RobotStatus>("robot_status",1,boost::bind(&MainWindow::callback_robStatus_subscriber,this,_1));
     fsmState_subscriber=Node->subscribe<hirop_msgs::taskCmdRet>("/VoiceCtlRob_state",1000,boost::bind(&MainWindow::callback_fsmState_subscriber,this,_1));
     personImg_subcriber=Node->subscribe<sensor_msgs::Image>("videphoto_feedback",1,boost::bind(&MainWindow::callback_peopleDetectImg_subscriber, this, _1));
-    personImg_subcriber=Node->subscribe<sensor_msgs::Image>("/usb_cam/image_raw",1,boost::bind(&MainWindow::callback_peopleDetectImg_subscriber, this, _1));
-    kinect2_subcriber=Node->subscribe<sensor_msgs::Image>("TOTOTOOTOTTO",1,boost::bind(&MainWindow::callback_kinect2_subscriber, this, _1));
+ //   personImg_subcriber=Node->subscribe<sensor_msgs::Image>("/usb_cam/image_raw",1,boost::bind(&MainWindow::callback_peopleDetectImg_subscriber, this, _1));
+    kinect2_subcriber=Node->subscribe<sensor_msgs::Image>("/kinect2/qhd/image_color",1,boost::bind(&MainWindow::callback_kinect2_subscriber, this, _1));
+
+    yolo6dimage_subcriber=Node->subscribe<sensor_msgs::Image>("/preview_image",1,boost::bind(&MainWindow::callback_yolo6dimage_subscriber, this, _1));
+
     forceSensor_subscriber=Node->subscribe<geometry_msgs::Wrench>("/daq_data",1,boost::bind(&MainWindow::callback_forceSensor_subscriber, this, _1));
     d435iImagRes_subcriber=Node->subscribe<sensor_msgs::Image>("/camera_base/color/image_raw",1,boost::bind(&MainWindow::callback_d435iImagRes_subcriber, this, _1));
 
@@ -66,7 +69,7 @@ void MainWindow::SysVarInit() {
     //节点名字监控
     vector<string > nodeName\
     {
-        "/vision_bridge","force_bridge","/pickplace_bridge",
+        "/vision_bridge","/force_bridge","/pickplace_bridge",
         "/hscfsm_bridge","/shakeHandJudge","/dm_bridge",
         "/trajectory_planner","/motion_bridge","/perception_bridge"
     };
@@ -267,6 +270,8 @@ void MainWindow::slot_btn_tabmain_devConn() {
 }
 
 void MainWindow::slot_btn_tabmain_beginRun(){
+    hsr_rosi_device::ClearFaultSrv srv_clear;
+    RobReset_client.call(srv_clear);
     hsr_rosi_device::SetEnableSrv srv;
     srv.request.enable= true;
     RobEnable_client.call(srv);
@@ -297,8 +302,8 @@ void MainWindow::slot_btn_tabmain_sysReset() {
         sleep(5);
         cout<<"5s休眠完"<<endl;
         system("kill -9 $(ps -ef | grep kinect2* | awk '{print $2}')");
-        system("echo y| rosrun grabrb_ui clearNode.sh &");
-
+       // system("echo y|rosrun handrb_ui clearNode.sh &");
+        system("rosrun handrb_ui clearnode.sh &");
         startUpFlag_devconn= false;
         btn_tabmain_sysReset->setEnabled(true);
     });
@@ -496,6 +501,15 @@ void MainWindow::callback_d435iImagRes_subcriber(const sensor_msgs::Image::Const
 void MainWindow::callback_kinect2_subscriber(const sensor_msgs::Image_<allocator<void>>::ConstPtr &msg) {
     map_devDetector["kinect2Conn_Detector"]->lifeNum=100;
     map_devDetector["kinect2Conn_Detector"]->status= true;
+}
+
+void MainWindow::callback_yolo6dimage_subscriber(const sensor_msgs::Image_<allocator<void>>::ConstPtr &msg) {
+    const cv_bridge::CvImageConstPtr &ptr = cv_bridge::toCvShare(msg, "bgr8");
+    cv::Mat mat = ptr->image;
+    QImage qimage = cvMat2QImage(mat);
+    QPixmap tmp_pixmap = QPixmap::fromImage(qimage);
+    QPixmap new_pixmap = tmp_pixmap.scaled(msg->width/2, msg->height/2, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);  // 饱满填充
+    label_tabvoiceSH_image->setPixmap(new_pixmap);
 }
 
 

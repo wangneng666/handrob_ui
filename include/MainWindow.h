@@ -82,6 +82,7 @@ private:
     ros::Subscriber personImg_subcriber;
     ros::Subscriber d435iImagRes_subcriber;
     ros::Subscriber kinect2_subcriber;
+    ros::Subscriber yolo6dimage_subcriber;
 
     ros::Publisher shakeEnd_pub;
     ros::Publisher voiceOrder_pub;
@@ -132,8 +133,10 @@ private:
     void callback_peopleDetectImg_subscriber(const sensor_msgs::Image::ConstPtr& msg);
     void callback_d435iImagRes_subcriber(const sensor_msgs::Image::ConstPtr& msg);
     void callback_kinect2_subscriber(const sensor_msgs::Image::ConstPtr& msg);
+    void callback_yolo6dimage_subscriber(const sensor_msgs::Image::ConstPtr& msg);
     void callback_forceSensor_subscriber(const geometry_msgs::Wrench::ConstPtr msg);
     void callback_fsmState_subscriber(const hirop_msgs::taskCmdRet::ConstPtr msg);
+
 
 signals:
     void emitLightColor(vector<QLabel*> label_list,string color);

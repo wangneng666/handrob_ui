@@ -7,7 +7,6 @@
   sleep 5
   roslaunch pickplace_bridge finger_pickplace_bridge.launch &
   rosrun openni2_tracker voice.sh &
-  rosrun gripper_bridge five_finger_gripper.sh &
   rosrun dm_bridge dm_bridge &
   rosrun planner_bridge planner &
   rosrun motion_bridge motion_bridge_exe &
@@ -18,6 +17,7 @@
 #  gnome-terminal -x bash -c "rosrun hscfsm_bridge hscfsm_bridge" &
   rosrun hscfsm_bridge hscfsm_bridge &
   sleep 5
+  rosrun gripper_bridge five_finger_gripper.sh &
   rosrun perception_bridge five_finger_scene.sh &
 wait
 exit 0
